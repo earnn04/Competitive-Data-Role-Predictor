@@ -4,9 +4,9 @@
 
 **The Dataset:** This project analyzes a dataset of competitive League of Legends esports matches from 2022. League of Legends is a very complex multiplayer online battle arena (MOBA) game in which ten players (five per team) compete in lengthy strategic matches. Each player on the team is designated one of five roles: Top, Jungle, Mid, Bot, or Support. This dataset contains a row for each of the 10 players per match, as well as a row for each of the teams per match containing summary statistics for their performance in the game. These rows capture a wide range of statistics including gold, kills, assists, wards placed, etc. The dataset contains **150,588** rows constituting **12,549 competitive matches**.
 
-**The Question:** Initially the question was asking whether we could predict a players **role** (Top, Jungle, Mid, Bot, Support) based on various traits including the name of the champion they played. However, since most champions are played exclusively in one specific role, the question eventually changed to: Can we predict a players role based on their end-game performance statistics **without** knowing which champion they played?
+**The Question:** Initially the question was asking whether we could predict a players **role** (Top, Jungle, Mid, Bot, Support) based on various traits including the name of the champion they played. However, since most champions are played exclusively in one specific role, the question eventually changed to: *Can we predict a players role based on their end-game performance statistics **without** knowing which champion they played?*
 
-**Why this is important:** Relying on champion selection makes our predictions trivial. The aim of this project is to see if we can pinpoint the statistical differences in how different roles in League of Legends are played: Who achieves more assists vs. kills? Who gets the most monster kills? Who places the most wards? All of these define the playstyles for different roles and will help us in determing who played what role.
+**Why this is important:** Relying on champion selection makes our predictions trivial. The aim of this project is to see if we can pinpoint the statistical differences in how different roles in League of Legends are played: Who achieves more assists vs. kills? Who gets the most monster kills? Who places the most wards? All of these define the playstyles for different roles and will help us in determining who played what role.
 
 **Relevant Columns:**
 - `position`: This is the target variable we are trying to predict and represents what role was assigned to the player.
@@ -15,7 +15,7 @@
 - `damagetakenperminute`: This represents the average amount of damage absorbed by a player per minute. This helps separate more "tank-y" roles such as Jungle and Top
 - `monsterkills`: The amount of monsters the player killed. Most useful in identifying Jungle players.
 - `wpm` **(Wards Per Minute)**: This is a statistic that deals with map control. This identifies the support role as they primarily place down wards.
-- `damagetotowers`: A critical statistic in the game represented damage inflicted on in-game structures. Useful for distinguishing Top/Mid-lane players.
+- `damagetotowers`: A critical statistic in the game representing damage inflicted on in-game structures. Useful for distinguishing Top/Mid-lane players.
 - `cspm` **(Creep Score Per Minute)**: A statistic representing the average amount of minion kills a player has.
 - `result`: Whether the player was on the winning (1) or losing (0) team. Used mostly in our fairness analysis for determining possible bias in our model.
 
@@ -23,11 +23,11 @@
 
 ### Data Cleaning:
 
-The given dataset for League of Legends competitve esports matches isn't very messy as it is– however we do need to reformat our dataset so it only features data from individual players rather than teams as a whole since the aim of our project is to predict the roles of individual players. To do this, we redefined a dataset `lol_individual` that only features rows where the `position` column **isn't** "team". These specific rows feature aggregate data for the team's statistics as a whole.
+The given dataset for League of Legends competitive esports matches isn't very messy as it is– however we do need to reformat our dataset so it only features data from individual players rather than teams as a whole since the aim of our project is to predict the roles of individual players. To do this, we redefined a dataset `lol_individual` that only features rows where the `position` column **isn't** "team". These specific rows feature aggregate data for the team's statistics as a whole.
 
 After doing this cleaning, some of our relevant columns still contained missing datapoints. After calculating the value counts of missing values in each of these columns, we found that multiple of these columns only featured 10 rows with missing data. Since this is such a trivial value, we dropped these rows as it wouldn't have much impact on any findings.
 
-Here is the first 5 rows of our dataset (with a selection of relevant columns) after conducting our cleaning:
+Here are the first 5 rows of our dataset (with a selection of relevant columns) after conducting our cleaning:
 
 | gameid                | position   | champion   |   earned gpm |   damageshare |   monsterkills |    wpm |   result |
 |:----------------------|:-----------|:-----------|-------------:|--------------:|---------------:|-------:|---------:|
@@ -71,14 +71,14 @@ To investigate the missingness mechanism of the `teamid` column (which had over 
 #### Test 1: Dependency on Game Result
 The `teamid` column in our dataset has a significant amount of missing data. Below we will run a permutation test to determine whether the missingness of this column depends on the `result` column (win/loss)
 
-- **Null Hypothesis:** The missingness of `teamid` is independent of `result`
-- **Alternative Hypothesis:** The missingness of `teamid` depends on `result`
+- **Null Hypothesis:** The missingness of `teamid` is independent of `result`; that is, the average win rate for rows with `teamid` data present is the same as the average win rate for rows with `teamid` data missing.
+- **Alternative Hypothesis:** The missingness of `teamid` depends on `result`; that is, the average win rate for rows with `teamid` data present is *different* than the average win rate for rows with `teamid` data missing.
 - **Test Statistic:** The difference in win rate (Win Rate with data present - Win Rate with data missing)
 - **Result:** Our observed test statistic was 0.05 (50% win rate with data, 45% win rate missing data). After 500 permutations, our test resulted in a p-value of 0.0. The below plot shows our simulated distribution with the red line representing our observed difference. Visually, this value is much more extreme than our simulations.
 
 <iframe src="assets/missingness_permutation.html" width="800" height="600" frameborder="0"></iframe>
 
-- **Interpretation:** In conclusion, we **reject** the null hypothesis. The missingness is dependent on game result (MAR – Missing At Random). Specifically, this suggeests that losing teams are significantly more likely to have a missing `teamid` than winning teams.
+- **Interpretation:** In conclusion, we **reject** the null hypothesis. The missingness is dependent on game result (MAR – Missing At Random). Specifically, this suggests that losing teams are significantly more likely to have a missing `teamid` than winning teams.
 
 #### Test 2: Independence from Position:
 Below we will run a permutation test to see whether the missingness of `teamid` depends on a player's `position`.
@@ -91,11 +91,11 @@ Below we will run a permutation test to see whether the missingness of `teamid` 
 
 ## **Hypothesis Testing:**
 
-For our hypothesis test, we wanted to see whether mid-lane players deal a higher percentage (`damageshare`) of damage than top-lane players. This is a useful test becasue top and mid-lane players tend to have relatively similar statistics and this could be a useful distinguishing feature between those two categories.
+For our hypothesis test, we wanted to see whether mid-lane players deal a higher percentage (`damageshare`) of damage than top-lane players. This is a useful test because top and mid-lane players tend to have relatively similar statistics and this could be a useful distinguishing feature between those two categories.
 
 - **Null Hypothesis:** There is no difference between the average `damageshare` of top lane players and the average `damageshare` of midlane players
 - **Alternative Hypothesis:** The average `damageshare` of midlane players is larger than the average `damageshare` of top lane players
-- **Test Statistic:** The differnece in means (Mean Top Damage Share - Mean Mid Damage Share)
+- **Test Statistic:** The difference in means (Mean Top Damage Share - Mean Mid Damage Share)
 - **Significance Level:** 0.05
 
 - **Justification:** We chose a difference in means for our test statistic because `damageshare` is a numerical feature and this is a natural measure of the center of both categories. We choose to conduct a permutation test because we don't know the distribution of `damageshare`, and permutations don't rely on any parametric assumptions.
@@ -112,11 +112,11 @@ For our hypothesis test, we wanted to see whether mid-lane players deal a higher
 
  **Problem Type:** This is a Multi-Class Classification problem. We have five distinct categories that we are trying to predict and sort different players into.
 
- **Response Variable:** Our response variable is `position`. We chose this because we want to understan dhow different roles are defined statistically and how we can quantify a person's "playstyle". We are essentially testing whether the roles in League of Legends are distinct enough to be identified based on statistical reasoning.
+ **Response Variable:** Our response variable is `position`. We chose this because we want to understand how different roles are defined statistically and how we can quantify a person's "playstyle". We are essentially testing whether the roles in League of Legends are distinct enough to be identified based on statistical reasoning.
 
- **Evaluaton Metric:** In League of Legends there is strictly one player per role in each game. That means there is no class imbalance as each role represents exactly 20% of our data. Since we odn't have class imbalance, accuracy is the best and most intuitive way to measure the success of our model. F1 scores are useful when classes are imbalanced, however that is not the case with this problem.
+ **Evaluation Metric:** In League of Legends there is strictly one player per role in each game. That means there is no class imbalance as each role represents exactly 20% of our data. Since we don't have class imbalance, accuracy is the best and most intuitive way to measure the success of our model. F1 scores are useful when classes are imbalanced, however that is not the case with this problem.
 
- All of the metrics we will train are model on are post-game features collected once the game has finished. Our dataset has mutliple features like `killsat15`, `xpat20`, etc. representing statistics throughout the game, however they will not be used in our model. So the "time of prediction" for our model is after a game as been completed.
+ All of the metrics we will train our model on are post-game features collected once the game has finished. Our dataset has multiple features like `killsat15`, `xpat20`, etc. representing statistics throughout the game, however they will not be used in our model. So the "time of prediction" for our model is after a game has been completed.
 
 ## **Baseline Model:**
 
@@ -127,38 +127,38 @@ For our hypothesis test, we wanted to see whether mid-lane players deal a higher
 
 - `cspm` **(Quantitative)**: This measures how many minions a player kills. We scaled using a StandardScaler.
 
-- `damageshare` **(Quantitative)**: This is the percentage of the team's total damage dealt by a particular player. We used StandardScaler to transform feature.
+- `damageshare` **(Quantitative)**: This is the percentage of the team's total damage dealt by a particular player. We used StandardScaler to transform this feature.
 
 **Performance:**
 - **Training Accuracy:** ~90.7%
 - **Test Accuracy:** ~89.9%
 
-**Evaluation:** While numerically this model seems great, an accuracy of 90% seems too good to be true. Seeing these numbers I realized a conceptual flaw in building this model: in League of Legends, most champions are played exclusively in one position. Our model wasn't learning based off of playstyles; it was memorizing which champion was played in which role and sorting it that way. While it was good at predicting, it didn't answer any questions about the behavior differences between roles. This led us to remove the `champion` column from our Final Model moving forward so we could answer a more interesting question.
+**Evaluation:** While numerically this model seems great, an accuracy of 90% seems too good to be true. These numbers represent a conceptual flaw in building this model: in League of Legends, most champions are played exclusively in one position. Our model wasn't learning based off of playstyles; it was memorizing which champion was played in which role and sorting them as such. While it was excellent at predicting, it didn't answer any questions about the behavioral differences between roles. This led us to remove the `champion` column from our Final Model moving forward so we could answer a more interesting question.
 
 ## **Final Model:**
 
 **Features Added:** To build a more robust model that predicts based on *behavior* rather than champion name, we removed the `champion` column to prevent data leakage. To compensate for this loss in information, we added five important features:
-- `monsterkills`: This feature was added to identify Junglers. As we saw in our EDA, Junglers have a significantly higher number of monster kills than any other role.
+- `monsterkills`: This feature was added to identify Junglers. As seen in our EDA, Junglers have a significantly higher number of monster kills than any other role.
 - `damagetotowers`: This was added to distinguish between top and mid-lane players. In a typical game of League of Legends, Top laners stay in a side lane and hit towers while Mid laners roam the map. We expect Top laners to have significantly higher tower damage.
-- `assists`: This was added to distinguish Support and Mid laners. Supports and Mid lane players roam the map and typically assist in kills with one another rather than more isolated roles like Jungle, Bot lane, and Top lane.
+- `assists`: This was added to distinguish Support and Mid laners. Supports and Mid lane players roam the map and typically assist in kills with one another. On the contrary Jungle, Bot lane, and Top lane are more isolated roles leading to a smaller number of assists.
 - `earned gpm`: This was added to separate Bot/Mid lane roles from Support roles. The distribution of gold is right-skewed as we saw in our univariate EDA plot. Because of this skew we applied a QuantileTransformer to normalize the feature.
 - `damagetakenperminute`: This was added to identify tank players who absorb a lot of damage. This is common in isolated roles such as Top lane and Jungle who need to defend for themselves with little support.
 
-**Modeling Algorithm and Hyperparameters:** Again, we chose a Random Forest Classifier becuase it handles categorical predictions and non-linear relationships. Top optimize our model we used GridSearchCV with 5-fold cross validation. We tuned three different hyperparameters to balance our model and prevent overfitting:
+**Modeling Algorithm and Hyperparameters:** Again, we chose a Random Forest Classifier becuase it handles categorical predictions and non-linear relationships. To optimize our model we used GridSearchCV with 5-fold cross validation. We tuned three different hyperparameters to balance our model and prevent overfitting:
 - `n_estimators`: Tuned to 100
 - `max_depth`: Tuned to 15, we limited the depth to prevent our model from overfitting and memorizing the patterns of specific games
-- `min_samples_leaf`: Tuned to 10, this forced the model to only create rules that applied to at least 10 players, ensuring we based our preditions on actual patterns in the dataset rather than specific games and outliers.
+- `min_samples_leaf`: Tuned to 10, this forced the model to only create rules that applied to at least 10 players, ensuring we based our predictions on actual patterns in the dataset rather than specific games and outliers.
 
 #### **Performance Improvement:**
 - **Baseline Accuracy (with `champion`):** ~90%
 - **Baseline Accuracy (without `champion`):** ~72%
 - **Final Model Accuracy:** ~82.9% on our Training set and ~78.9% on our Test set (after removing data leakage from `champion` and tuning features/variables)
 
-**Confusion Matrix:** The below Confusion Matrix shows that our model is nearly perfect at predicting Junglers and Support players. This is likely because they have more distinct identifiers (`monsterkills` for Junglers and high `assists` and low `earned gpm` for support). However, our model struggles with distinguishing Mid Laners from Top/Bot Laners. This is likely because all of these roles have similarly high gold and low damage.
+**Confusion Matrix:** The below Confusion Matrix shows that our model is nearly perfect at predicting Junglers and Support players. This is likely because they have more distinct identifiers (`monsterkills` for Junglers and high `assists`/low `earned gpm` for support). However, our model struggles with distinguishing Mid Laners from Top/Bot Laners. This is likely because all of these roles have similarly high gold and low damage.
 
 <iframe src="assets/confusion_matrix.html" width="800" height="600" frameborder="0"></iframe>
 
-**Conclusion:** While our raw accuracy dropped from our Baseline to our Final Model, our Final Model is a qualitative improvement and answers the question of the project in a more meaningful way. Our original model was essentially memorizing the names of champions which is trivial. When removing `champion`, our accuracy initially dropped to 72%, however by adding features such as `monsterkills` and `asissts`, we recovered 7% accuracy. Our Final Model is more successful at predicting player positions based off of playstyles rather than by sorting characters. 
+**Conclusion:** While our raw accuracy dropped from our Baseline to our Final Model, our Final Model is a qualitative improvement and answers the question of the project in a more meaningful way. Our original model was essentially memorizing the names of champions which is trivial. When removing `champion`, our accuracy initially dropped to 72%, however by adding features such as `monsterkills` and `assists`, we recovered 7% accuracy. Our Final Model is more successful at predicting player positions based off of playstyles rather than by sorting characters. 
 
 
 ## **Fairness Analysis:**
@@ -172,9 +172,9 @@ For our hypothesis test, we wanted to see whether mid-lane players deal a higher
 
 **Hypotheses/Test Statistic & Significance Level:**
 - **Null Hypothesis:** Our model is fair: the accuracy is roughly the same for both winning and losing players.
-- **Alternative Hypothesis:** The model is unfair: it's accuracy for players on the winning team is significantly higher than its accuracy for players on the losing team.
+- **Alternative Hypothesis:** The model is unfair: its accuracy for players on the winning team is significantly higher than its accuracy for players on the losing team.
 
-- **Test Statistic:** Difference in Accuracy (Accuracy of Winnters - Accuracy of Losers)
+- **Test Statistic:** Difference in Accuracy (Accuracy of Winners - Accuracy of Losers)
 - **Significance Level:** 0.05
 
 **Results:**
