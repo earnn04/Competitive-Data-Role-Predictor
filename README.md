@@ -27,7 +27,7 @@ The given dataset for League of Legends competitve esports matches isn't very me
 
 After doing this cleaning, some of our relevant columns still contained missing datapoints. After calculating the value counts of missing values in each of these columns, we found that multiple of these columns only featured 10 rows with missing data. Since this is such a trivial value, we dropped these rows as it wouldn't have much impact on any findings.
 
-Here is the first 5 rows of our dataset after conducting our cleaning:
+Here is the first 5 rows of our dataset (with a selection of relevant columns) after conducting our cleaning:
 
 | gameid                | position   | champion   |   earned gpm |   damageshare |   monsterkills |    wpm |   result |
 |:----------------------|:-----------|:-----------|-------------:|--------------:|---------------:|-------:|---------:|
