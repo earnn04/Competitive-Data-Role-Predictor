@@ -58,4 +58,39 @@ Below is a pivot table representing the average of multiple statistics across th
 | jng        |   6.85714 |         1483.36  |      212.393 |     143.216    | 0.357516 |
 | sup        |   9.19001 |          539.651 |      110.589 |       0.440145 | 1.45195  |
 
+## **Assessment of Missingness:**
+
+### NMAR Analysis:
+
+I believe the missingness in columns `ban1`, `ban2`, `ban3`, `ban4`, and `ban5` are examples of NMAR (Not Missing At Random) data. These values are likely missing because either the players didn't choose to ban anyone, or they ran out of time to ban a champion. If obtained data claiming whether players ran out of time or skipped banning someone, we would explicitly know why a champion wasn't picked for the ban. Then these columns would have MAR (Missing At Random) missingness. 
+
+### Missingness Dependency:
+
+To investigate the missingness mechanism of the `teamid` column (which had over 1700 missing values), we performed permutation tests against other columns in the dataset.
+
+#### Test 1: Dependency on Game Result
+The `teamid` column in our dataset has a significant amount of missing data. Below we will run a permutation test to determine whether the missingness of this column depends on the `result` column (win/loss)
+
+- **Null Hypothesis:** The missingness of `teamid` is independent of `result`
+- **Alternative Hypothesis:** The missingness of `teamid` depends on `result`
+- **Test Statistic:** The difference in win rate (Win Rate with data present - Win Rate with data missing)
+- **Result:** Our observed test statistic was 0.05 (50% win rate with data, 45% win rate missing data). After 500 permutations, our test resulted in a p-value of 0.0. The below plot shows our simulated distribution with the red line representing our observed difference. Visually, this value is much more extreme than our simulations.
+
+<iframe src="assets/missingness_permutation.html" width="800" height="600" frameborder="0"></iframe>
+
+- **Interpretation:** In conclusion, we **reject** the null hypothesis. The missingness is dependent on game result (MAR – Missing At Random). Specifically, this suggeests that losing teams are significantly more likely to have a missing `teamid` than winning teams.
+
+#### Test 2: Independence from Position:
+Below we will run a permutation test to see whether the missingness of `teamid` depends on a player's `position`.
+
+- **Null Hypothesis:** The missingness of `teamid` is independent of `position`
+- **Alternative Hypothesis:** The missingness of `teamid` depends on `position`
+- **Test Statistic:** The Total Variation Distance (TVD) between `position` distributions
+- **Result**: The observed TVD was 0.0 (meaning the distribution was identical in both groups). After running our permutation test we achieved a p-value of 1.0.
+- **Interpretation:** We **fail to reject** the null hypothesis. Our missingness is independent of `position`, meaning it's MCAR (Missing Completely at Random) with respect to `position`. A support player is no more likely to have a missing `teamid` than a top-lane player, etc. This is likely because when a team identifier is missing for one player in a team, it's missing for everyone on the team.
+
+## **Hypothesis Testing:**
+
+#### Test 1:
+
 
